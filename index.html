@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rozpis služeb u Terezičky – demo</title>
+    <title>Kostelníci.cz – Terezička</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       :root {
         --bg: #f7f5f2;
@@ -22,220 +23,79 @@
         background: var(--bg);
         color: var(--text);
       }
-      .wrap {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .hero, .card, .modal-box {
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+      .hero, .card, .modal-box, .overview-card {
         background: var(--card);
         border: 1px solid var(--line);
         border-radius: 24px;
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
       }
-      .hero {
-        padding: 28px;
-        margin-bottom: 20px;
-      }
+      .hero { padding: 28px; margin-bottom: 20px; }
       .pill {
-        display: inline-block;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent);
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 14px;
+        display: inline-block; padding: 8px 12px; border-radius: 999px; background: var(--accent-soft);
+        color: var(--accent); font-size: 14px; font-weight: 600; margin-bottom: 14px;
       }
-      h1 {
-        margin: 0 0 8px;
-        font-size: 36px;
-        line-height: 1.1;
-      }
-      .sub {
-        color: var(--muted);
-        max-width: 780px;
-        line-height: 1.5;
-      }
+      h1 { margin: 0 0 8px; font-size: 36px; line-height: 1.1; }
+      .sub { color: var(--muted); max-width: 900px; line-height: 1.5; }
       .hint {
-        margin-top: 18px;
-        padding: 16px;
-        border-radius: 18px;
-        background: #fafaf9;
-        border: 1px solid var(--line);
-        color: var(--muted);
-      }
-      .days {
-        display: flex;
-        gap: 10px;
-        overflow: auto;
-        padding-bottom: 8px;
-        margin-bottom: 18px;
-      }
-      .day-btn {
-        min-width: 140px;
-        border: 1px solid var(--line);
-        background: white;
-        border-radius: 18px;
-        padding: 14px;
-        text-align: left;
-        cursor: pointer;
-      }
-      .day-btn.active {
-        background: var(--accent);
-        color: white;
-        border-color: var(--accent);
-      }
-      .day-btn small {
-        display: block;
-        opacity: .8;
-        margin-top: 4px;
-      }
-      .section-title {
-        margin: 6px 0 14px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-      }
-      .card {
-        padding: 20px;
-      }
-      .top {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        align-items: flex-start;
-        margin-bottom: 16px;
-      }
-      .time {
-        font-size: 32px;
-        font-weight: 800;
-        margin-bottom: 4px;
-      }
-      .type {
-        color: var(--muted);
-      }
-      .btn {
-        border: 1px solid var(--line);
-        background: white;
-        border-radius: 14px;
-        padding: 10px 14px;
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .btn-primary {
-        background: var(--accent);
-        color: white;
-        border-color: var(--accent);
-      }
-      .row { margin: 14px 0; }
-      .label {
-        font-size: 14px;
-        color: var(--muted);
-        margin-bottom: 6px;
-      }
-      .value {
-        font-size: 16px;
-      }
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .badge {
-        padding: 7px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: #fff;
-        font-size: 14px;
-      }
-      .badge.empty { color: var(--muted); background: #fafafa; }
-      .status {
-        display: inline-flex;
-        align-items: center;
-        padding: 7px 11px;
-        border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-      }
-      .status-green {
-        background: #ecfdf5;
-        color: #166534;
-        border: 1px solid #bbf7d0;
-      }
-      .status-yellow {
-        background: #fffbeb;
-        color: #92400e;
-        border: 1px solid #fde68a;
-      }
-      .status-red {
-        background: #fef2f2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
-      }
-      .overview {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
-      }
-      .overview-card {
-        background: white;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 16px;
-      }
-      .acolytes-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-      .modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.38);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-      }
-      .modal.open { display: flex; }
-      .modal-box {
-        width: 100%;
-        max-width: 720px;
-        padding: 22px;
-      }
-      .modal-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 14px;
-      }
-      .fields {
-        display: grid;
-        gap: 14px;
-      }
-      input, textarea {
-        width: 100%;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 13px 14px;
-        font: inherit;
-      }
-      .save-note {
-        margin-top: 14px;
-        color: var(--muted);
-        font-size: 14px;
+        margin-top: 18px; padding: 16px; border-radius: 18px; background: #fafaf9; border: 1px solid var(--line); color: var(--muted);
       }
       .today-box {
-        margin-bottom: 16px;
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: var(--ok);
-        border: 1px solid #d1fae5;
+        margin-bottom: 16px; padding: 14px 16px; border-radius: 18px; background: var(--ok); border: 1px solid #d1fae5;
+      }
+      .overview {
+        display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px;
+      }
+      .overview-card { padding: 16px; border-radius: 18px; }
+      .overview-card strong { display: block; margin-bottom: 6px; }
+      .days {
+        display: flex; gap: 10px; overflow: auto; padding-bottom: 8px; margin-bottom: 18px;
+      }
+      .day-btn {
+        min-width: 155px; border: 1px solid var(--line); background: white; border-radius: 18px; padding: 14px; text-align: left; cursor: pointer;
+      }
+      .day-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+      .day-btn small { display: block; opacity: .85; margin-top: 4px; }
+      .section-title { margin: 6px 0 14px; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .card { padding: 20px; }
+      .top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+      .time { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+      .type { color: var(--muted); }
+      .btn {
+        border: 1px solid var(--line); background: white; border-radius: 14px; padding: 10px 14px; cursor: pointer; font-weight: 600;
+      }
+      .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+      .status {
+        display: inline-flex; align-items: center; padding: 7px 11px; border-radius: 999px; font-size: 13px; font-weight: 700;
+      }
+      .status-green { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
+      .status-yellow { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+      .status-red { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+      .row { margin: 14px 0; }
+      .label { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+      .value { font-size: 16px; }
+      .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+      .badge {
+        padding: 7px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font-size: 14px;
+      }
+      .badge.empty { color: var(--muted); background: #fafafa; }
+      .month-title { margin: 24px 0 12px; font-size: 22px; }
+      .modal {
+        position: fixed; inset: 0; background: rgba(0,0,0,.38); display: none; align-items: center; justify-content: center; padding: 16px;
+      }
+      .modal.open { display: flex; }
+      .modal-box { width: 100%; max-width: 860px; padding: 22px; }
+      .modal-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 14px; }
+      .fields { display: grid; gap: 14px; }
+      input {
+        width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; font: inherit;
+      }
+      .acolytes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .save-note { margin-top: 14px; color: var(--muted); font-size: 14px; }
+      .warn { color: #991b1b; font-weight: 600; }
+      @media (max-width: 900px) {
+        .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       }
       @media (max-width: 760px) {
         h1 { font-size: 28px; }
@@ -250,20 +110,19 @@
   <body>
     <div class="wrap">
       <div class="hero">
-        <div class="pill">Demo • Terezička • tento týden</div>
+        <div class="pill">Kostelníci.cz • Terezička • ostrá verze</div>
         <h1>Rozpis služeb u Terezičky</h1>
         <div class="sub">
-          Jednoduchá ukázka, jak by mohl fungovat přehled služeb pro kněze, akolyty a lektory. Bez složitostí, přehledně na mobilu i na počítači.
+          Sdílený online rozpis pro kněze, akolyty a lektory. Změny se po uložení projeví všem uživatelům. Týdny se generují z pravidelného rozvrhu Terezičky a lze je kdykoli upravit.
         </div>
         <div class="hint">
-          Pro demo stačí kliknout na konkrétní mši, dopsat jména a uložit. Změny se v tomto demu ukládají jen v prohlížeči daného zařízení.
+          <strong>Než to nasadíš:</strong> doplň dole v kódu své <code>SUPABASE_URL</code> a <code>SUPABASE_ANON_KEY</code> a v Supabase vytvoř tabulku <code>mass_services</code> podle SQL, které ti pošlu v chatu.
         </div>
       </div>
 
       <div id="todayBox" class="today-box"></div>
       <div id="overview" class="overview"></div>
       <div id="days" class="days"></div>
-
       <h2 id="sectionTitle" class="section-title"></h2>
       <div id="cards" class="grid"></div>
     </div>
@@ -302,179 +161,196 @@
             <input id="reader2Input" placeholder="Jméno" />
           </div>
           <button class="btn btn-primary" onclick="saveModal()">Uložit</button>
-          <div class="save-note">Demo verze bez serveru. Uložené změny uvidí na tomto odkazu vždy jen ten, kdo je zadal na svém zařízení.</div>
+          <div class="save-note">Po připojení k Supabase budou změny viditelné všem uživatelům online.</div>
         </div>
       </div>
     </div>
 
     <script>
-      const baseData = [
-        { date: 'Pondělí 9. 3. 2026', dayName: 'Pondělí', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: 'P. Jan', acolytes: ['Jan Novák'], reader1: 'Anna', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Úterý 10. 3. 2026', dayName: 'Úterý', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Mše pro mládež', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Středa 11. 3. 2026', dayName: 'Středa', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '17:00', type: 'Mše pro děti', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Čtvrtek 12. 3. 2026', dayName: 'Čtvrtek', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Pátek 13. 3. 2026', dayName: 'Pátek', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Sobota 14. 3. 2026', dayName: 'Sobota', masses: [
-          { time: '6:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-        { date: 'Neděle 15. 3. 2026', dayName: 'Neděle', masses: [
-          { time: '7:30', type: 'Ranní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '9:00', type: 'Mše s rytmickým zpěvem', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '10:30', type: 'Farní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-          { time: '18:30', type: 'Večerní mše', priest: '', acolytes: [], reader1: '', reader2: '' },
-        ]},
-      ];
+      const SUPABASE_URL = 'DOPLN_SUPABASE_URL';
+      const SUPABASE_ANON_KEY = 'DOPLN_SUPABASE_ANON_KEY';
 
-      const saved = localStorage.getItem('terezicka-demo-data');
-      const data = saved ? JSON.parse(saved) : baseData;
-      const dayOrder = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
-      const todayName = dayOrder[new Date().getDay()];
-      let selectedDay = Math.max(0, data.findIndex(d => d.dayName === todayName));
-      let editing = { day: null, mass: null };
+      const { createClient } = supabase;
+      const hasSupabaseConfig = !SUPABASE_URL.startsWith('DOPLN_') && !SUPABASE_ANON_KEY.startsWith('DOPLN_');
+      const client = hasSupabaseConfig ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-      function persist() {
-        localStorage.setItem('terezicka-demo-data', JSON.stringify(data));
+      const scheduleTemplate = {
+        1: [{ time: '6:30', type: 'Ranní mše' }, { time: '18:30', type: 'Večerní mše' }],
+        2: [{ time: '6:30', type: 'Ranní mše' }, { time: '18:30', type: 'Mše pro mládež' }],
+        3: [{ time: '6:30', type: 'Ranní mše' }, { time: '17:00', type: 'Mše pro děti' }, { time: '18:30', type: 'Večerní mše' }],
+        4: [{ time: '6:30', type: 'Ranní mše' }, { time: '18:30', type: 'Večerní mše' }],
+        5: [{ time: '6:30', type: 'Ranní mše' }, { time: '18:30', type: 'Večerní mše' }],
+        6: [{ time: '6:30', type: 'Ranní mše' }, { time: '18:30', type: 'Večerní mše' }],
+        0: [{ time: '7:30', type: 'Ranní mše' }, { time: '9:00', type: 'Mše s rytmickým zpěvem' }, { time: '10:30', type: 'Farní mše' }, { time: '18:30', type: 'Večerní mše' }],
+      };
+
+      const dayNames = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
+      const monthNames = ['leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec'];
+
+      const serviceMap = new Map();
+      let selectedDayKey = null;
+      let editing = { key: null, index: null };
+      let realtimeChannel = null;
+
+      function toDateKey(date) {
+        return date.toISOString().slice(0, 10);
+      }
+
+      function formatDateLabel(date) {
+        return `${dayNames[date.getDay()]} ${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+      }
+
+      function startOfWeek(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        d.setDate(d.getDate() + diff);
+        d.setHours(0,0,0,0);
+        return d;
+      }
+
+      function generateDays(weeksAhead = 12) {
+        const start = startOfWeek(new Date());
+        const days = [];
+        for (let i = 0; i < weeksAhead * 7; i++) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + i);
+          const key = toDateKey(date);
+          const weekday = date.getDay();
+          const masses = scheduleTemplate[weekday].map((m) => ({
+            date_key: key,
+            dayName: dayNames[weekday],
+            dateLabel: formatDateLabel(date),
+            time: m.time,
+            type: m.type,
+            priest: '',
+            acolytes: [],
+            reader1: '',
+            reader2: '',
+          }));
+          days.push({ key, date, dayName: dayNames[weekday], dateLabel: formatDateLabel(date), masses });
+        }
+        return days;
+      }
+
+      function getMergedDays() {
+        const days = generateDays();
+        return days.map((day) => ({
+          ...day,
+          masses: day.masses.map((mass) => {
+            const recordKey = `${mass.date_key}_${mass.time}`;
+            const db = serviceMap.get(recordKey);
+            return db ? { ...mass, ...db } : mass;
+          })
+        }));
       }
 
       function badges(items) {
         if (!items || !items.length) return '<span class="badge empty">Zatím nikdo</span>';
-        return items.map(x => `<span class="badge">${x}</span>`).join('');
-      }
-
-      function getStatus(m) {
-        const acolytesCount = (m.acolytes || []).filter(Boolean).length;
-        const isSunday = data[selectedDay]?.dayName === 'Neděle';
-
-        const requiredAcolytes = isSunday ? 4 : 2;
-
-        const hasPriest = m.priest && m.priest.trim();
-        const hasReader1 = m.reader1 && m.reader1.trim();
-        const hasReader2 = m.reader2 && m.reader2.trim();
-
-        const filledSomething = hasPriest || hasReader1 || hasReader2 || acolytesCount > 0;
-
-        if (!filledSomething) {
-          return { label: 'Neobsazeno', cls: 'status-red' };
-        }
-
-        if (hasPriest && hasReader1 && hasReader2 && acolytesCount >= requiredAcolytes) {
-          return { label: 'Obsazeno', cls: 'status-green' };
-        }
-
-        return { label: 'Částečně obsazeno', cls: 'status-yellow' };
-      }
-
-      function getOverviewCounts() {
-        const masses = data.flatMap(day => day.masses);
-        let green = 0, yellow = 0, red = 0;
-        masses.forEach((m) => {
-          const cls = getStatus(m).cls;
-          if (cls === 'status-green') green += 1;
-          else if (cls === 'status-yellow') yellow += 1;
-          else red += 1;
-        });
-        return { total: masses.length, green, yellow, red };
+        return items.map((x) => `<span class="badge">${x}</span>`).join('');
       }
 
       function textOrEmpty(v) {
         return v && v.trim() ? v : 'Zatím není zapsáno';
       }
 
-      function renderDays() {
-        const days = document.getElementById('days');
-        days.innerHTML = data.map((d, i) => `
-          <button class="day-btn ${i === selectedDay ? 'active' : ''}" onclick="selectDay(${i})">
-            <strong>${d.dayName}${d.dayName === todayName ? ' • dnes' : ''}</strong>
-            <small>${d.date}</small>
-          </button>
-        `).join('');
+      function getRequiredAcolytes(dayName) {
+        return dayName === 'Neděle' ? 4 : 2;
       }
 
-      function renderCards() {
-        const day = data[selectedDay];
-        document.getElementById('sectionTitle').textContent = `${day.date}`;
-        const cards = document.getElementById('cards');
-        cards.innerHTML = day.masses.map((m, i) => {
-          const status = getStatus(m);
-          return `
-          <div class="card">
-            <div class="top">
-              <div>
-                <div class="time">${m.time}</div>
-                <div class="type">${m.type}</div>
-              </div>
-              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-                <span class="status ${status.cls}">${status.label}</span>
-                <button class="btn" onclick="openModal(${selectedDay}, ${i})">Zapsat / upravit</button>
-              </div>
-            </div>
-            <div class="row"><div class="label">Kněz</div><div class="value">${textOrEmpty(m.priest)}</div></div>
-            <div class="row"><div class="label">Akolyté</div><div class="badges">${badges(m.acolytes)}</div></div>
-            <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(m.reader1)}</div></div>
-            <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(m.reader2)}</div></div>
-          </div>
-        `}).join('');
+      function getStatus(mass, dayName) {
+        const acolytesCount = (mass.acolytes || []).filter(Boolean).length;
+        const required = getRequiredAcolytes(dayName);
+        const hasPriest = !!(mass.priest && mass.priest.trim());
+        const hasReader1 = !!(mass.reader1 && mass.reader1.trim());
+        const hasReader2 = !!(mass.reader2 && mass.reader2.trim());
+        const filledSomething = hasPriest || hasReader1 || hasReader2 || acolytesCount > 0;
+        if (!filledSomething) return { label: 'Neobsazeno', cls: 'status-red' };
+        if (hasPriest && hasReader1 && hasReader2 && acolytesCount >= required) return { label: 'Obsazeno', cls: 'status-green' };
+        return { label: `Částečně obsazeno`, cls: 'status-yellow' };
       }
 
-      function renderOverview() {
-        const counts = getOverviewCounts();
-        document.getElementById('overview').innerHTML = `
-          <div class="overview-card"><strong>Celkem mší</strong><div>${counts.total}</div></div>
-          <div class="overview-card"><strong style="color:#166534;">Obsazeno</strong><div>${counts.green}</div></div>
-          <div class="overview-card"><strong style="color:#92400e;">Částečně</strong><div>${counts.yellow}</div></div>
-          <div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong><div>${counts.red}</div></div>
-        `;
-      }
-
-      function renderTodayBox() {
-        const box = document.getElementById('todayBox');
-        const day = data[selectedDay];
-        box.innerHTML = `<strong>Aktuálně zobrazený den:</strong> ${day.dayName}. <span style="color:#6b7280">Vyberte mši a doplňte službu pro demo.</span>`;
+      function getOverviewCounts(days) {
+        let green = 0, yellow = 0, red = 0, total = 0;
+        days.forEach((day) => day.masses.forEach((mass) => {
+          total += 1;
+          const cls = getStatus(mass, day.dayName).cls;
+          if (cls === 'status-green') green += 1;
+          else if (cls === 'status-yellow') yellow += 1;
+          else red += 1;
+        }));
+        return { total, green, yellow, red };
       }
 
       function render() {
-        renderTodayBox();
-        renderOverview();
-        renderDays();
-        renderCards();
+        const days = getMergedDays();
+        if (!selectedDayKey) selectedDayKey = toDateKey(new Date());
+        const selectedDay = days.find((d) => d.key === selectedDayKey) || days[0];
+        selectedDayKey = selectedDay.key;
+
+        document.getElementById('todayBox').innerHTML = `<strong>Dnes:</strong> ${formatDateLabel(new Date())}. <span style="color:#6b7280">Změny se po uložení sdílí všem připojeným uživatelům.</span>`;
+
+        const counts = getOverviewCounts(days);
+        document.getElementById('overview').innerHTML = `
+          <div class="overview-card"><strong>Celkem mší</strong>${counts.total}</div>
+          <div class="overview-card"><strong style="color:#166534;">Obsazeno</strong>${counts.green}</div>
+          <div class="overview-card"><strong style="color:#92400e;">Částečně</strong>${counts.yellow}</div>
+          <div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong>${counts.red}</div>
+        `;
+
+        document.getElementById('days').innerHTML = days.slice(0, 28).map((day) => `
+          <button class="day-btn ${day.key === selectedDayKey ? 'active' : ''}" onclick="selectDay('${day.key}')">
+            <strong>${day.dayName}${day.key === toDateKey(new Date()) ? ' • dnes' : ''}</strong>
+            <small>${day.dateLabel}</small>
+          </button>
+        `).join('');
+
+        document.getElementById('sectionTitle').textContent = selectedDay.dateLabel;
+        document.getElementById('cards').innerHTML = selectedDay.masses.map((mass, i) => {
+          const status = getStatus(mass, selectedDay.dayName);
+          const required = getRequiredAcolytes(selectedDay.dayName);
+          const actual = (mass.acolytes || []).filter(Boolean).length;
+          const missing = Math.max(0, required - actual);
+          return `
+            <div class="card">
+              <div class="top">
+                <div>
+                  <div class="time">${mass.time}</div>
+                  <div class="type">${mass.type}</div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+                  <span class="status ${status.cls}">${status.label}</span>
+                  <button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button>
+                </div>
+              </div>
+              <div class="row"><div class="label">Kněz</div><div class="value">${textOrEmpty(mass.priest)}</div></div>
+              <div class="row"><div class="label">Akolyté</div><div class="badges">${badges(mass.acolytes)}</div></div>
+              <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div>
+              <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div>
+              <div class="row"><div class="label">Požadovaný počet akolytů</div><div class="value">${required}${missing > 0 ? ` • <span class="warn">chybí ještě ${missing}</span>` : ''}</div></div>
+            </div>
+          `;
+        }).join('');
       }
 
-      function selectDay(i) {
-        selectedDay = i;
+      function selectDay(key) {
+        selectedDayKey = key;
         render();
       }
 
-      function openModal(dayIndex, massIndex) {
-        editing = { day: dayIndex, mass: massIndex };
-        const item = data[dayIndex].masses[massIndex];
-        document.getElementById('modalMeta').textContent = `${data[dayIndex].date} • ${item.time} • ${item.type}`;
-        document.getElementById('priestInput').value = item.priest || '';
-        const acolytes = item.acolytes || [];
-        document.getElementById('acolyte1Input').value = acolytes[0] || '';
-        document.getElementById('acolyte2Input').value = acolytes[1] || '';
-        document.getElementById('acolyte3Input').value = acolytes[2] || '';
-        document.getElementById('acolyte4Input').value = acolytes[3] || '';
-        document.getElementById('acolyte5Input').value = acolytes[4] || '';
-        document.getElementById('acolyte6Input').value = acolytes[5] || '';
-        document.getElementById('reader1Input').value = item.reader1 || '';
-        document.getElementById('reader2Input').value = item.reader2 || '';
+      function openModal(dayKey, massIndex) {
+        const days = getMergedDays();
+        const day = days.find((d) => d.key === dayKey);
+        const mass = day.masses[massIndex];
+        editing = { key: dayKey, index: massIndex };
+        document.getElementById('modalMeta').textContent = `${day.dateLabel} • ${mass.time} • ${mass.type}`;
+        document.getElementById('priestInput').value = mass.priest || '';
+        const acolytes = mass.acolytes || [];
+        for (let i = 0; i < 6; i++) {
+          document.getElementById(`acolyte${i + 1}Input`).value = acolytes[i] || '';
+        }
+        document.getElementById('reader1Input').value = mass.reader1 || '';
+        document.getElementById('reader2Input').value = mass.reader2 || '';
         document.getElementById('modal').classList.add('open');
       }
 
@@ -482,25 +358,86 @@
         document.getElementById('modal').classList.remove('open');
       }
 
-      function saveModal() {
-        const item = data[editing.day].masses[editing.mass];
-        item.priest = document.getElementById('priestInput').value.trim();
-        item.acolytes = [
-          document.getElementById('acolyte1Input').value.trim(),
-          document.getElementById('acolyte2Input').value.trim(),
-          document.getElementById('acolyte3Input').value.trim(),
-          document.getElementById('acolyte4Input').value.trim(),
-          document.getElementById('acolyte5Input').value.trim(),
-          document.getElementById('acolyte6Input').value.trim()
-        ].filter(Boolean);
-        item.reader1 = document.getElementById('reader1Input').value.trim();
-        item.reader2 = document.getElementById('reader2Input').value.trim();
-        persist();
+      async function saveModal() {
+        if (!client) {
+          alert('Nejdřív doplň SUPABASE_URL a SUPABASE_ANON_KEY v kódu.');
+          return;
+        }
+        const days = getMergedDays();
+        const day = days.find((d) => d.key === editing.key);
+        const mass = day.masses[editing.index];
+        const payload = {
+          church_slug: 'terezicka',
+          date_key: day.key,
+          day_name: day.dayName,
+          date_label: day.dateLabel,
+          time: mass.time,
+          mass_type: mass.type,
+          priest: document.getElementById('priestInput').value.trim(),
+          acolytes: [1,2,3,4,5,6].map((i) => document.getElementById(`acolyte${i}Input`).value.trim()).filter(Boolean),
+          reader1: document.getElementById('reader1Input').value.trim(),
+          reader2: document.getElementById('reader2Input').value.trim(),
+          updated_at: new Date().toISOString()
+        };
+
+        const { error } = await client.from('mass_services').upsert(payload, { onConflict: 'church_slug,date_key,time' });
+        if (error) {
+          alert('Nepodařilo se uložit změny: ' + error.message);
+          return;
+        }
+        serviceMap.set(`${payload.date_key}_${payload.time}`, payload);
         closeModal();
         render();
       }
 
-      render();
+      async function loadServices() {
+        if (!client) {
+          render();
+          return;
+        }
+        const start = toDateKey(startOfWeek(new Date()));
+        const endDate = new Date(startOfWeek(new Date()));
+        endDate.setDate(endDate.getDate() + 84);
+        const end = toDateKey(endDate);
+
+        const { data, error } = await client
+          .from('mass_services')
+          .select('*')
+          .eq('church_slug', 'terezicka')
+          .gte('date_key', start)
+          .lte('date_key', end)
+          .order('date_key', { ascending: true })
+          .order('time', { ascending: true });
+
+        if (error) {
+          console.error(error);
+          render();
+          return;
+        }
+
+        serviceMap.clear();
+        (data || []).forEach((row) => {
+          serviceMap.set(`${row.date_key}_${row.time}`, row);
+        });
+        render();
+      }
+
+      function subscribeRealtime() {
+        if (!client) return;
+        if (realtimeChannel) client.removeChannel(realtimeChannel);
+        realtimeChannel = client
+          .channel('mass-services-live')
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'mass_services',
+            filter: 'church_slug=eq.terezicka'
+          }, () => loadServices())
+          .subscribe();
+      }
+
+      loadServices();
+      subscribeRealtime();
     </script>
   </body>
 </html>
