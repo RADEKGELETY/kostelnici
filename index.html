@@ -171,7 +171,7 @@
       const SUPABASE_ANON_KEY = 'erkrbzqomdofoiataawt';
 
       const { createClient } = supabase;
-      const hasSupabaseConfig = !SUPABASE_URL.startsWith('DOPLN_') && !SUPABASE_ANON_KEY.startsWith('DOPLN_');
+      const hasSupabaseConfig = !SUPABASE_URL.startsWith('https://erkrbzqomdofoiataawt.supabase.co') && !SUPABASE_ANON_KEY.startsWith('erkrbzqomdofoiataawt');
       const client = hasSupabaseConfig ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
       const scheduleTemplate = {
