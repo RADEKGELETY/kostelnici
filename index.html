@@ -168,10 +168,10 @@
 
     <script>
       const SUPABASE_URL = 'https://erkrbzqomdofoiataawt.supabase.co';
-      const SUPABASE_ANON_KEY = 'erkrbzqomdofoiataawt';
+      const SUPABASE_ANON_KEY = 'sb_publishable_MFOC8UdHOC7jo5ug4RYSAw_3JpspwTU';
 
       const { createClient } = supabase;
-      const hasSupabaseConfig = !SUPABASE_URL.startsWith('https://erkrbzqomdofoiataawt.supabase.co') && !SUPABASE_ANON_KEY.startsWith('erkrbzqomdofoiataawt');
+      const hasSupabaseConfig = !SUPABASE_URL.startsWith('https://erkrbzqomdofoiataawt.supabase.co') && !SUPABASE_ANON_KEY.startsWith('sb_publishable_MFOC8UdHOC7jo5ug4RYSAw_3JpspwTU');
       const client = hasSupabaseConfig ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
       const scheduleTemplate = {
