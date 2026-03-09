@@ -155,26 +155,42 @@
       .status {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
+        padding: 7px 11px;
         border-radius: 999px;
         font-size: 13px;
         font-weight: 700;
       }
-      .status-complete {
+      .status-green {
         background: #ecfdf5;
         color: #166534;
         border: 1px solid #bbf7d0;
       }
-      .status-partial {
+      .status-yellow {
         background: #fffbeb;
         color: #92400e;
         border: 1px solid #fde68a;
       }
-      .status-empty {
+      .status-red {
         background: #fef2f2;
         color: #991b1b;
         border: 1px solid #fecaca;
+      }
+      .overview {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .overview-card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px;
+      }
+      .acolytes-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
       }
       .modal {
         position: fixed;
@@ -202,17 +218,12 @@
         display: grid;
         gap: 14px;
       }
-      input {
+      input, textarea {
         width: 100%;
         border: 1px solid var(--line);
         border-radius: 14px;
         padding: 13px 14px;
         font: inherit;
-      }
-      .acolytes-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
       }
       .save-note {
         margin-top: 14px;
@@ -232,6 +243,7 @@
         .top { flex-direction: column; }
         .btn { width: 100%; }
         .acolytes-grid { grid-template-columns: 1fr; }
+        .overview { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -249,6 +261,7 @@
       </div>
 
       <div id="todayBox" class="today-box"></div>
+      <div id="overview" class="overview"></div>
       <div id="days" class="days"></div>
 
       <h2 id="sectionTitle" class="section-title"></h2>
@@ -346,17 +359,38 @@
       }
 
       function getStatus(m) {
-        const filled = [m.priest, m.reader1, m.reader2].filter(v => v && v.trim()).length;
         const acolytesCount = (m.acolytes || []).filter(Boolean).length;
-        const score = filled + acolytesCount;
+        const isSunday = data[selectedDay]?.dayName === 'Neděle';
 
-        if (score === 0) {
-          return { label: 'Neobsazeno', cls: 'status-empty' };
+        const requiredAcolytes = isSunday ? 4 : 2;
+
+        const hasPriest = m.priest && m.priest.trim();
+        const hasReader1 = m.reader1 && m.reader1.trim();
+        const hasReader2 = m.reader2 && m.reader2.trim();
+
+        const filledSomething = hasPriest || hasReader1 || hasReader2 || acolytesCount > 0;
+
+        if (!filledSomething) {
+          return { label: 'Neobsazeno', cls: 'status-red' };
         }
-        if (m.priest && m.reader1 && m.reader2 && acolytesCount >= 2) {
-          return { label: 'Obsazeno', cls: 'status-complete' };
+
+        if (hasPriest && hasReader1 && hasReader2 && acolytesCount >= requiredAcolytes) {
+          return { label: 'Obsazeno', cls: 'status-green' };
         }
-        return { label: 'Částečně obsazeno', cls: 'status-partial' };
+
+        return { label: 'Částečně obsazeno', cls: 'status-yellow' };
+      }
+
+      function getOverviewCounts() {
+        const masses = data.flatMap(day => day.masses);
+        let green = 0, yellow = 0, red = 0;
+        masses.forEach((m) => {
+          const cls = getStatus(m).cls;
+          if (cls === 'status-green') green += 1;
+          else if (cls === 'status-yellow') yellow += 1;
+          else red += 1;
+        });
+        return { total: masses.length, green, yellow, red };
       }
 
       function textOrEmpty(v) {
@@ -386,7 +420,7 @@
                 <div class="time">${m.time}</div>
                 <div class="type">${m.type}</div>
               </div>
-              <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                 <span class="status ${status.cls}">${status.label}</span>
                 <button class="btn" onclick="openModal(${selectedDay}, ${i})">Zapsat / upravit</button>
               </div>
@@ -399,6 +433,16 @@
         `}).join('');
       }
 
+      function renderOverview() {
+        const counts = getOverviewCounts();
+        document.getElementById('overview').innerHTML = `
+          <div class="overview-card"><strong>Celkem mší</strong><div>${counts.total}</div></div>
+          <div class="overview-card"><strong style="color:#166534;">Obsazeno</strong><div>${counts.green}</div></div>
+          <div class="overview-card"><strong style="color:#92400e;">Částečně</strong><div>${counts.yellow}</div></div>
+          <div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong><div>${counts.red}</div></div>
+        `;
+      }
+
       function renderTodayBox() {
         const box = document.getElementById('todayBox');
         const day = data[selectedDay];
@@ -407,6 +451,7 @@
 
       function render() {
         renderTodayBox();
+        renderOverview();
         renderDays();
         renderCards();
       }
