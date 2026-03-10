@@ -17,9 +17,44 @@
     .status{display:inline-flex;align-items:center;padding:7px 11px;border-radius:999px;font-size:13px;font-weight:700}.status-green{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}.status-yellow{background:#fffbeb;color:#92400e;border:1px solid #fde68a}.status-red{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
     .row{margin:14px 0}.label{font-size:14px;color:var(--muted);margin-bottom:6px}.value{font-size:16px}.badges{display:flex;flex-wrap:wrap;gap:8px}.badge{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px}.badge.empty{color:var(--muted);background:#fafafa}.warn{color:#991b1b;font-weight:600}
     .error-box{margin-top:12px;padding:12px 14px;border-radius:14px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;white-space:pre-wrap}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.38);display:none;align-items:center;justify-content:center;padding:16px}.modal.open{display:flex}.modal-box{width:100%;max-width:860px;padding:22px}.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.fields{display:grid;gap:14px}
+    .modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.38);
+  display:none;
+  align-items:flex-start;
+  justify-content:center;
+  padding:20px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.modal.open{display:flex}
+.modal-box{
+  width:100%;
+  max-width:860px;
+  padding:22px;
+  margin-top:40px;
+  margin-bottom:40px;
+}
+.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+.fields{display:grid;gap:14px}
     input{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;font:inherit}.acolytes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.save-note{margin-top:14px;color:var(--muted);font-size:14px}
-    @media (max-width:900px){.overview{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:760px){h1{font-size:28px}.grid{grid-template-columns:1fr}.top{flex-direction:column}.btn{width:100%}.acolytes-grid{grid-template-columns:1fr}.overview{grid-template-columns:1fr}}
+   @media (max-width:900px){
+  .overview{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  h1{font-size:28px}
+  .grid{grid-template-columns:1fr}
+  .top{flex-direction:column}
+  .btn{width:100%}
+  .acolytes-grid{grid-template-columns:1fr}
+  .overview{grid-template-columns:1fr}
+  .modal-box{
+    margin-top:12px;
+    margin-bottom:12px;
+    padding:16px;
+  }
+}
   </style>
 </head>
 <body>
