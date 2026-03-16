@@ -131,15 +131,66 @@ function clearError(){ const box=document.getElementById('errorBox'); box.style.
 function localDateKey(date){ const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }
 function formatDateLabel(date){ return `${dayNames[date.getDay()]} ${date.getDate()}. ${date.getMonth()+1}. ${date.getFullYear()}`; }
 function startOfWeek(date){ const d=new Date(date), day=d.getDay(), diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d; }
-function generateDays(weeksAhead=12){
-  const start=startOfWeek(new Date()), days=[];
-  for(let i=0;i<weeksAhead*7;i++){
-    const date=new Date(start); date.setDate(start.getDate()+i);
-    const key=localDateKey(date), weekday=date.getDay();
-    const masses=scheduleTemplate[weekday].map((m)=>({date_key:key,dayName:dayNames[weekday],dateLabel:formatDateLabel(date),time:m.time,type:m.type,priest:'',acolytes:[],reader1:'',reader2:''}));
-    days.push({key,date,dayName:dayNames[weekday],dateLabel:formatDateLabel(date),masses});
+function generateDays(){
+
+  const today = new Date();
+
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth()+2, 0);
+
+  const days = [];
+
+  for(let d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
+
+    const date = new Date(d);
+    const key = localDateKey(date);
+    const weekday = date.getDay();
+
+    let masses;
+
+    if(key === '2026-04-02'){
+      masses = [{time:'18:30', type:'Zelený čtvrtek – Večeře Páně'}];
+    }
+    else if(key === '2026-04-03'){
+      masses = [{time:'15:00', type:'Velkopáteční obřady'}];
+    }
+    else if(key === '2026-04-04'){
+      masses = [{time:'20:30', type:'Velikonoční vigilie'}];
+    }
+    else if(key === '2026-04-06'){
+      masses = [
+        {time:'7:30', type:'Velikonoční pondělí'},
+        {time:'9:00', type:'Velikonoční pondělí'},
+        {time:'18:30', type:'Velikonoční pondělí'}
+      ];
+    }
+    else{
+      masses = scheduleTemplate[weekday];
+    }
+
+    const formatted = masses.map(m => ({
+      date_key:key,
+      dayName:dayNames[weekday],
+      dateLabel:formatDateLabel(date),
+      time:m.time,
+      type:m.type,
+      priest:'',
+      acolytes:[],
+      reader1:'',
+      reader2:''
+    }));
+
+    days.push({
+      key,
+      date,
+      dayName:dayNames[weekday],
+      dateLabel:formatDateLabel(date),
+      masses:formatted
+    });
   }
+
   return days;
+}
 }
 function getMergedDays(){
   return generateDays().map((day)=>({
