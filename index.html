@@ -231,7 +231,14 @@ function render(){
   document.getElementById('todayBox').innerHTML=`<strong>Dnes:</strong> ${formatDateLabel(new Date())}`;
   const counts=getOverviewCounts(days);
   document.getElementById('overview').innerHTML=`<div class="overview-card"><strong>Celkem mší</strong>${counts.total}</div><div class="overview-card"><strong style="color:#166534;">Obsazeno</strong>${counts.green}</div><div class="overview-card"><strong style="color:#92400e;">Částečně</strong>${counts.yellow}</div><div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong>${counts.red}</div>`;
-  document.getElementById('days').innerHTML=days.map((day)=>`
+  document.getElementById('days').innerHTML = days
+  .map((day) => `
+    <button class="day-btn ${day.key===selectedDayKey ? 'active' : ''}" onclick="selectDay('${day.key}')">
+      <strong>${day.dayName}${day.key===todayKey ? ' • dnes' : ''}</strong>
+      <small>${day.dateLabel}</small>
+    </button>
+  `)
+  .join('');
   document.getElementById('sectionTitle').textContent=selectedDay.dateLabel;
   document.getElementById('cards').innerHTML=selectedDay.masses.map((mass,i)=>{ const status=getStatus(mass,selectedDay.dayName), req=requiredAcolytes(selectedDay.dayName), actual=(mass.acolytes||[]).filter(Boolean).length, missing=Math.max(0,req-actual); return `<div class="card"><div class="top"><div><div class="time">${mass.time}</div><div class="type">${mass.type}</div></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;"><span class="status ${status.cls}">${status.label}</span><button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button></div></div><div class="row"><div class="label">Kněz</div><div class="value">${textOrEmpty(mass.priest)}</div></div><div class="row"><div class="label">Akolyté</div><div class="badges">${badges(mass.acolytes)}</div></div><div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div><div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div><div class="row"><div class="label">Požadovaný počet akolytů</div><div class="value">${req}${missing>0?` • <span class="warn">chybí ještě ${missing}</span>`:''}</div></div></div>`; }).join('');
 }
