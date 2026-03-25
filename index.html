@@ -258,7 +258,68 @@ function render(){
   `)
   .join('');
   document.getElementById('sectionTitle').textContent=selectedDay.dateLabel;
-  document.getElementById('cards').innerHTML=selectedDay.masses.map((mass,i)=>{ const status=getStatus(mass,selectedDay.dayName), req=requiredAcolytes(selectedDay.dayName), actual=(mass.acolytes||[]).filter(Boolean).length, missing=Math.max(0,req-actual); return `<div class="card"><div class="top"><div><div class="time">${mass.time}</div><div class="type">${mass.type}</div></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;"><span class="status ${status.cls}">${status.label}</span><button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button></div></div><div class="row"><div class="label">Kněz</div><div class="value">${textOrEmpty(mass.priest)}</div></div><div class="row"><div class="label">Akolyté</div><div class="badges">${badges(mass.acolytes)}</div></div><div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div><div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div><div class="row"><div class="label">Požadovaný počet akolytů</div><div class="value">${req}${missing>0?` • <span class="warn">chybí ještě ${missing}</span>`:''}</div></div></div>`; }).join('');
+  document.getElementById('cards').innerHTML = selectedDay.masses.map((mass, i) => {
+  const status = getStatus(mass, selectedDay.dayName);
+  const req = requiredAcolytes(selectedDay.dayName);
+  const actual = (mass.acolytes || []).filter(Boolean).length;
+  const missing = Math.max(0, req - actual);
+
+  const isVigil = selectedDay.key === '2026-04-04';
+  const allReaders = [
+    ...(mass.reader1 ? mass.reader1.split(' | ') : []),
+    ...(mass.reader2 ? mass.reader2.split(' | ') : [])
+  ].filter(Boolean);
+
+  const readersHtml = isVigil
+    ? Array.from({ length: 8 }, (_, index) => `
+        <div class="row">
+          <div class="label">${index + 1}. čtení</div>
+          <div class="value">${textOrEmpty(allReaders[index] || '')}</div>
+        </div>
+      `).join('')
+    : `
+        <div class="row">
+          <div class="label">1. čtení</div>
+          <div class="value">${textOrEmpty(mass.reader1)}</div>
+        </div>
+        <div class="row">
+          <div class="label">2. čtení</div>
+          <div class="value">${textOrEmpty(mass.reader2)}</div>
+        </div>
+      `;
+
+  return `
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="time">${mass.time}</div>
+          <div class="type">${mass.type}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+          <span class="status ${status.cls}">${status.label}</span>
+          <button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="label">Kněz</div>
+        <div class="value">${textOrEmpty(mass.priest)}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Akolyté</div>
+        <div class="badges">${badges(mass.acolytes)}</div>
+      </div>
+
+      ${readersHtml}
+
+      <div class="row">
+        <div class="label">Požadovaný počet akolytů</div>
+        <div class="value">${req}${missing > 0 ? ` • <span class="warn">chybí ještě ${missing}</span>` : ''}</div>
+      </div>
+    </div>
+  `;
+}).join('');
 }
 function selectDay(key){ selectedDayKey=key; render(); }
 function openModal(dayKey,massIndex){
