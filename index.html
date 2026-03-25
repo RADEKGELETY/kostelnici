@@ -98,8 +98,26 @@
           <input id="acolyte3Input" placeholder="Akolyta 3" /><input id="acolyte4Input" placeholder="Akolyta 4" />
           <input id="acolyte5Input" placeholder="Akolyta 5" /><input id="acolyte6Input" placeholder="Akolyta 6" />
         </div></div>
-        <div><div class="label">1. čtení</div><input id="reader1Input" placeholder="Jméno" /></div>
-        <div><div class="label">2. čtení</div><input id="reader2Input" placeholder="Jméno" /></div>
+        <div>
+          <div class="label">1. čtení</div>
+          <input id="reader1Input" placeholder="Jméno" />
+        </div>
+        <div>
+          <div class="label">2. čtení</div>
+          <input id="reader2Input" placeholder="Jméno" />
+        </div>
+
+        <div id="extraReaders" style="display:none">
+          <div class="label">Další čtení pro velikonoční vigilii</div>
+          <div class="acolytes-grid">
+            <input id="reader3Input" placeholder="3. čtení" />
+            <input id="reader4Input" placeholder="4. čtení" />
+            <input id="reader5Input" placeholder="5. čtení" />
+            <input id="reader6Input" placeholder="6. čtení" />
+            <input id="reader7Input" placeholder="7. čtení" />
+            <input id="reader8Input" placeholder="8. čtení" />
+          </div>
+        </div>
         <button class="btn btn-primary" onclick="saveModal()">Uložit</button>
         <div class="save-note">Online verze. Když druhý člověk něco změní, do 5 sekund to uvidíš také.</div>
       </div>
@@ -250,9 +268,38 @@ function openModal(dayKey,massIndex){
   document.getElementById('priestInput').value=mass.priest||'';
   const acolytes=mass.acolytes||[];
   for(let i=0;i<6;i++) document.getElementById(`acolyte${i+1}Input`).value=acolytes[i]||'';
-  document.getElementById('reader1Input').value=mass.reader1||'';
-  document.getElementById('reader2Input').value=mass.reader2||'';
-  document.getElementById('modal').classList.add('open');
+const isVigil = dayKey === '2026-04-04';
+
+if (isVigil) {
+  document.getElementById('extraReaders').style.display = 'block';
+
+  const firstGroup = (mass.reader1 || '').split(' | ');
+  const secondGroup = (mass.reader2 || '').split(' | ');
+
+  document.getElementById('reader1Input').value = firstGroup[0] || '';
+  document.getElementById('reader2Input').value = firstGroup[1] || '';
+  document.getElementById('reader3Input').value = firstGroup[2] || '';
+  document.getElementById('reader4Input').value = firstGroup[3] || '';
+
+  document.getElementById('reader5Input').value = secondGroup[0] || '';
+  document.getElementById('reader6Input').value = secondGroup[1] || '';
+  document.getElementById('reader7Input').value = secondGroup[2] || '';
+  document.getElementById('reader8Input').value = secondGroup[3] || '';
+} else {
+  document.getElementById('extraReaders').style.display = 'none';
+
+  document.getElementById('reader1Input').value = mass.reader1 || '';
+  document.getElementById('reader2Input').value = mass.reader2 || '';
+
+  document.getElementById('reader3Input').value = '';
+  document.getElementById('reader4Input').value = '';
+  document.getElementById('reader5Input').value = '';
+  document.getElementById('reader6Input').value = '';
+  document.getElementById('reader7Input').value = '';
+  document.getElementById('reader8Input').value = '';
+}
+
+document.getElementById('modal').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
 function apiUrl(path){ return `${SUPABASE_URL}/rest/v1/${path}`; }
@@ -270,7 +317,7 @@ async function saveModal(){
   try{
     clearError();
     const days=getMergedDays(), day=days.find((d)=>d.key===editing.key), mass=day.masses[editing.index];
-    const payload={church_slug:CHURCH,date_key:day.key,day_name:day.dayName,date_label:day.dateLabel,time:mass.time,mass_type:mass.type,priest:document.getElementById('priestInput').value.trim(),acolytes:[1,2,3,4,5,6].map((i)=>document.getElementById(`acolyte${i}Input`).value.trim()).filter(Boolean),reader1:document.getElementById('reader1Input').value.trim(),reader2:document.getElementById('reader2Input').value.trim(),updated_at:new Date().toISOString()};
+    const payload={church_slug:CHURCH,date_key:day.key,day_name:day.dayName,date_label:day.dateLabel,time:mass.time,mass_type:mass.type,priest:document.getElementById('priestInput').value.trim(),acolytes:[1,2,3,4,5,6].map((i)=>document.getElementById(`acolyte${i}Input`).value.trim()).filter(Boolean),reader1:day.key==='2026-04-04'?[document.getElementById('reader1Input').value.trim(),document.getElementById('reader2Input').value.trim(),document.getElementById('reader3Input').value.trim(),document.getElementById('reader4Input').value.trim()].filter(Boolean).join(' | '):document.getElementById('reader1Input').value.trim(),reader2:day.key==='2026-04-04'?[document.getElementById('reader5Input').value.trim(),document.getElementById('reader6Input').value.trim(),document.getElementById('reader7Input').value.trim(),document.getElementById('reader8Input').value.trim()].filter(Boolean).join(' | '):document.getElementById('reader2Input').value.trim(),updated_at:new Date().toISOString()};
     const res=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?on_conflict=church_slug,date_key,time`,{method:'POST',headers:{...apiHeaders(),'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(payload)});
     if(!res.ok) throw new Error(`Uložení selhalo: ${res.status} ${await res.text()}`);
     closeModal(); await loadServices();
