@@ -331,35 +331,17 @@ function openModal(dayKey,massIndex){
   for(let i=0;i<6;i++) document.getElementById(`acolyte${i+1}Input`).value=acolytes[i]||'';
 const isVigil = dayKey === '2026-04-04';
 
-if (isVigil) {
-  document.getElementById('extraReaders').style.display = 'block';
+document.getElementById('extraReaders').style.display = isVigil ? 'block' : 'none';
 
-  const firstGroup = (mass.reader1 || '').split(' | ');
-  const secondGroup = (mass.reader2 || '').split(' | ');
-
-  document.getElementById('reader1Input').value = firstGroup[0] || '';
-  document.getElementById('reader2Input').value = firstGroup[1] || '';
-  document.getElementById('reader3Input').value = firstGroup[2] || '';
-  document.getElementById('reader4Input').value = firstGroup[3] || '';
-
-  document.getElementById('reader5Input').value = secondGroup[0] || '';
-  document.getElementById('reader6Input').value = secondGroup[1] || '';
-  document.getElementById('reader7Input').value = secondGroup[2] || '';
-  document.getElementById('reader8Input').value = secondGroup[3] || '';
-} else {
-  document.getElementById('extraReaders').style.display = 'none';
-
-  document.getElementById('reader1Input').value = mass.reader1 || '';
-  document.getElementById('reader2Input').value = mass.reader2 || '';
-
-  document.getElementById('reader3Input').value = '';
-  document.getElementById('reader4Input').value = '';
-  document.getElementById('reader5Input').value = '';
-  document.getElementById('reader6Input').value = '';
-  document.getElementById('reader7Input').value = '';
-  document.getElementById('reader8Input').value = '';
+document.getElementById('reader1Input').value = mass.reader1 || '';
+document.getElementById('reader2Input').value = mass.reader2 || '';
+document.getElementById('reader3Input').value = mass.reader3 || '';
+document.getElementById('reader4Input').value = mass.reader4 || '';
+document.getElementById('reader5Input').value = mass.reader5 || '';
+document.getElementById('reader6Input').value = mass.reader6 || '';
+document.getElementById('reader7Input').value = mass.reader7 || '';
+document.getElementById('reader8Input').value = mass.reader8 || '';
 }
-
 document.getElementById('modal').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
