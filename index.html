@@ -265,29 +265,21 @@ function render(){
   const missing = Math.max(0, req - actual);
 
   const isVigil = selectedDay.key === '2026-04-04';
-  const allReaders = [
-    ...(mass.reader1 ? mass.reader1.split(' | ') : []),
-    ...(mass.reader2 ? mass.reader2.split(' | ') : [])
-  ].filter(Boolean);
-
   const readersHtml = isVigil
-    ? Array.from({ length: 8 }, (_, index) => `
-        <div class="row">
-          <div class="label">${index + 1}. čtení</div>
-          <div class="value">${textOrEmpty(allReaders[index] || '')}</div>
-        </div>
-      `).join('')
-    : `
-        <div class="row">
-          <div class="label">1. čtení</div>
-          <div class="value">${textOrEmpty(mass.reader1)}</div>
-        </div>
-        <div class="row">
-          <div class="label">2. čtení</div>
-          <div class="value">${textOrEmpty(mass.reader2)}</div>
-        </div>
-      `;
-
+  ? `
+    <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div>
+    <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div>
+    <div class="row"><div class="label">3. čtení</div><div class="value">${textOrEmpty(mass.reader3)}</div></div>
+    <div class="row"><div class="label">4. čtení</div><div class="value">${textOrEmpty(mass.reader4)}</div></div>
+    <div class="row"><div class="label">5. čtení</div><div class="value">${textOrEmpty(mass.reader5)}</div></div>
+    <div class="row"><div class="label">6. čtení</div><div class="value">${textOrEmpty(mass.reader6)}</div></div>
+    <div class="row"><div class="label">7. čtení</div><div class="value">${textOrEmpty(mass.reader7)}</div></div>
+    <div class="row"><div class="label">8. čtení</div><div class="value">${textOrEmpty(mass.reader8)}</div></div>
+  `
+  : `
+    <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div>
+    <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div>
+  `;
   return `
     <div class="card">
       <div class="top">
