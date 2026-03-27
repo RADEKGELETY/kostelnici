@@ -242,91 +242,84 @@ function getOverviewCounts(days){
   return {total,green,yellow,red};
 }
 function render(){
-  const days = getMergedDays();
-  const todayKey = localDateKey(new Date());
-
-  if(!selectedDayKey) selectedDayKey = todayKey;
-
-  const selectedDay = days.find((d)=>d.key===selectedDayKey) || days[0];
-  selectedDayKey = selectedDay.key;
-
-  document.getElementById('todayBox').innerHTML = `<strong>Dnes:</strong> ${formatDateLabel(new Date())}`;
-
-  const counts = getOverviewCounts(days);
-
-  document.getElementById('overview').innerHTML =
-    `<div class="overview-card"><strong>Celkem mší</strong>${counts.total}</div>
-     <div class="overview-card"><strong style="color:#166534;">Obsazeno</strong>${counts.green}</div>
-     <div class="overview-card"><strong style="color:#92400e;">Částečně</strong>${counts.yellow}</div>
-     <div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong>${counts.red}</div>`;
-
+  const days=getMergedDays(), todayKey=localDateKey(new Date());
+  if(!selectedDayKey) selectedDayKey=todayKey;
+  const selectedDay=days.find((d)=>d.key===selectedDayKey)||days[0];
+  selectedDayKey=selectedDay.key;
+  document.getElementById('todayBox').innerHTML=`<strong>Dnes:</strong> ${formatDateLabel(new Date())}`;
+  const counts=getOverviewCounts(days);
+  document.getElementById('overview').innerHTML=`<div class="overview-card"><strong>Celkem mší</strong>${counts.total}</div><div class="overview-card"><strong style="color:#166534;">Obsazeno</strong>${counts.green}</div><div class="overview-card"><strong style="color:#92400e;">Částečně</strong>${counts.yellow}</div><div class="overview-card"><strong style="color:#991b1b;">Neobsazeno</strong>${counts.red}</div>`;
   document.getElementById('days').innerHTML = days
-    .map((day) => `
-      <button class="day-btn ${day.key===selectedDayKey ? 'active' : ''}" onclick="selectDay('${day.key}')">
-        <strong>${day.dayName}${day.key===todayKey ? ' • dnes' : ''}</strong>
-        <small>${day.dateLabel}</small>
-      </button>
-    `)
-    .join('');
-
-  document.getElementById('sectionTitle').textContent = selectedDay.dateLabel;
-
+  .map((day) => `
+    <button class="day-btn ${day.key===selectedDayKey ? 'active' : ''}" onclick="selectDay('${day.key}')">
+      <strong>${day.dayName}${day.key===todayKey ? ' • dnes' : ''}</strong>
+      <small>${day.dateLabel}</small>
+    </button>
+  `)
+  .join('');
+  document.getElementById('sectionTitle').textContent=selectedDay.dateLabel;
   document.getElementById('cards').innerHTML = selectedDay.masses.map((mass, i) => {
-    const status = getStatus(mass, selectedDay.dayName);
-    const req = requiredAcolytes(selectedDay.dayName);
-    const actual = (mass.acolytes || []).filter(Boolean).length;
-    const missing = Math.max(0, req - actual);
+  const status = getStatus(mass, selectedDay.dayName);
+  const req = requiredAcolytes(selectedDay.dayName);
+  const actual = (mass.acolytes || []).filter(Boolean).length;
+  const missing = Math.max(0, req - actual);
 
-    const isVigil = selectedDay.key === '2026-04-04';
+  const isVigil = selectedDay.key === '2026-04-04';
+  const allReaders = [
+    ...(mass.reader1 ? mass.reader1.split(' | ') : []),
+    ...(mass.reader2 ? mass.reader2.split(' | ') : [])
+  ].filter(Boolean);
 
-    const readersHtml = isVigil
-      ? `
-        <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div>
-        <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div>
-        <div class="row"><div class="label">3. čtení</div><div class="value">${textOrEmpty(mass.reader3)}</div></div>
-        <div class="row"><div class="label">4. čtení</div><div class="value">${textOrEmpty(mass.reader4)}</div></div>
-        <div class="row"><div class="label">5. čtení</div><div class="value">${textOrEmpty(mass.reader5)}</div></div>
-        <div class="row"><div class="label">6. čtení</div><div class="value">${textOrEmpty(mass.reader6)}</div></div>
-        <div class="row"><div class="label">7. čtení</div><div class="value">${textOrEmpty(mass.reader7)}</div></div>
-        <div class="row"><div class="label">8. čtení</div><div class="value">${textOrEmpty(mass.reader8)}</div></div>
-      `
-      : `
-        <div class="row"><div class="label">1. čtení</div><div class="value">${textOrEmpty(mass.reader1)}</div></div>
-        <div class="row"><div class="label">2. čtení</div><div class="value">${textOrEmpty(mass.reader2)}</div></div>
+  const readersHtml = isVigil
+    ? Array.from({ length: 8 }, (_, index) => `
+        <div class="row">
+          <div class="label">${index + 1}. čtení</div>
+          <div class="value">${textOrEmpty(allReaders[index] || '')}</div>
+        </div>
+      `).join('')
+    : `
+        <div class="row">
+          <div class="label">1. čtení</div>
+          <div class="value">${textOrEmpty(mass.reader1)}</div>
+        </div>
+        <div class="row">
+          <div class="label">2. čtení</div>
+          <div class="value">${textOrEmpty(mass.reader2)}</div>
+        </div>
       `;
 
-    return `
-      <div class="card">
-        <div class="top">
-          <div>
-            <div class="time">${mass.time}</div>
-            <div class="type">${mass.type}</div>
-          </div>
-          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-            <span class="status ${status.cls}">${status.label}</span>
-            <button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button>
-          </div>
+  return `
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="time">${mass.time}</div>
+          <div class="type">${mass.type}</div>
         </div>
-
-        <div class="row">
-          <div class="label">Kněz</div>
-          <div class="value">${textOrEmpty(mass.priest)}</div>
-        </div>
-
-        <div class="row">
-          <div class="label">Akolyté</div>
-          <div class="badges">${badges(mass.acolytes)}</div>
-        </div>
-
-        ${readersHtml}
-
-        <div class="row">
-          <div class="label">Požadovaný počet akolytů</div>
-          <div class="value">${req}${missing > 0 ? ` • <span class="warn">chybí ještě ${missing}</span>` : ''}</div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+          <span class="status ${status.cls}">${status.label}</span>
+          <button class="btn" onclick="openModal('${selectedDay.key}', ${i})">Zapsat / upravit</button>
         </div>
       </div>
-    `;
-  }).join('');
+
+      <div class="row">
+        <div class="label">Kněz</div>
+        <div class="value">${textOrEmpty(mass.priest)}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Akolyté</div>
+        <div class="badges">${badges(mass.acolytes)}</div>
+      </div>
+
+      ${readersHtml}
+
+      <div class="row">
+        <div class="label">Požadovaný počet akolytů</div>
+        <div class="value">${req}${missing > 0 ? ` • <span class="warn">chybí ještě ${missing}</span>` : ''}</div>
+      </div>
+    </div>
+  `;
+}).join('');
 }
 function selectDay(key){ selectedDayKey=key; render(); }
 function openModal(dayKey,massIndex){
@@ -338,17 +331,35 @@ function openModal(dayKey,massIndex){
   for(let i=0;i<6;i++) document.getElementById(`acolyte${i+1}Input`).value=acolytes[i]||'';
 const isVigil = dayKey === '2026-04-04';
 
-document.getElementById('extraReaders').style.display = isVigil ? 'block' : 'none';
+if (isVigil) {
+  document.getElementById('extraReaders').style.display = 'block';
 
-document.getElementById('reader1Input').value = mass.reader1 || '';
-document.getElementById('reader2Input').value = mass.reader2 || '';
-document.getElementById('reader3Input').value = mass.reader3 || '';
-document.getElementById('reader4Input').value = mass.reader4 || '';
-document.getElementById('reader5Input').value = mass.reader5 || '';
-document.getElementById('reader6Input').value = mass.reader6 || '';
-document.getElementById('reader7Input').value = mass.reader7 || '';
-document.getElementById('reader8Input').value = mass.reader8 || '';
+  const firstGroup = (mass.reader1 || '').split(' | ');
+  const secondGroup = (mass.reader2 || '').split(' | ');
+
+  document.getElementById('reader1Input').value = firstGroup[0] || '';
+  document.getElementById('reader2Input').value = firstGroup[1] || '';
+  document.getElementById('reader3Input').value = firstGroup[2] || '';
+  document.getElementById('reader4Input').value = firstGroup[3] || '';
+
+  document.getElementById('reader5Input').value = secondGroup[0] || '';
+  document.getElementById('reader6Input').value = secondGroup[1] || '';
+  document.getElementById('reader7Input').value = secondGroup[2] || '';
+  document.getElementById('reader8Input').value = secondGroup[3] || '';
+} else {
+  document.getElementById('extraReaders').style.display = 'none';
+
+  document.getElementById('reader1Input').value = mass.reader1 || '';
+  document.getElementById('reader2Input').value = mass.reader2 || '';
+
+  document.getElementById('reader3Input').value = '';
+  document.getElementById('reader4Input').value = '';
+  document.getElementById('reader5Input').value = '';
+  document.getElementById('reader6Input').value = '';
+  document.getElementById('reader7Input').value = '';
+  document.getElementById('reader8Input').value = '';
 }
+
 document.getElementById('modal').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
@@ -367,7 +378,7 @@ async function saveModal(){
   try{
     clearError();
     const days=getMergedDays(), day=days.find((d)=>d.key===editing.key), mass=day.masses[editing.index];
-    const payload={church_slug:CHURCH,date_key:day.key,day_name:day.dayName,date_label:day.dateLabel,time:mass.time,mass_type:mass.type,priest:document.getElementById('priestInput').value.trim(),acolytes:[1,2,3,4,5,6].map((i)=>document.getElementById(`acolyte${i}Input`).value.trim()).filter(Boolean),reader1:document.getElementById('reader1Input').value.trim(),reader2:document.getElementById('reader2Input').value.trim(),reader3:document.getElementById('reader3Input')?.value.trim()||'',reader4:document.getElementById('reader4Input')?.value.trim()||'',reader5:document.getElementById('reader5Input')?.value.trim()||'',reader6:document.getElementById('reader6Input')?.value.trim()||'',reader7:document.getElementById('reader7Input')?.value.trim()||'',reader8:document.getElementById('reader8Input')?.value.trim()||'',updated_at:new Date().toISOString()};
+    const payload={church_slug:CHURCH,date_key:day.key,day_name:day.dayName,date_label:day.dateLabel,time:mass.time,mass_type:mass.type,priest:document.getElementById('priestInput').value.trim(),acolytes:[1,2,3,4,5,6].map((i)=>document.getElementById(`acolyte${i}Input`).value.trim()).filter(Boolean),reader1:day.key==='2026-04-04'?[document.getElementById('reader1Input').value.trim(),document.getElementById('reader2Input').value.trim(),document.getElementById('reader3Input').value.trim(),document.getElementById('reader4Input').value.trim()].filter(Boolean).join(' | '):document.getElementById('reader1Input').value.trim(),reader2:day.key==='2026-04-04'?[document.getElementById('reader5Input').value.trim(),document.getElementById('reader6Input').value.trim(),document.getElementById('reader7Input').value.trim(),document.getElementById('reader8Input').value.trim()].filter(Boolean).join(' | '):document.getElementById('reader2Input').value.trim(),updated_at:new Date().toISOString()};
     const res=await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?on_conflict=church_slug,date_key,time`,{method:'POST',headers:{...apiHeaders(),'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(payload)});
     if(!res.ok) throw new Error(`Uložení selhalo: ${res.status} ${await res.text()}`);
     closeModal(); await loadServices();
